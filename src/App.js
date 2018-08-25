@@ -1,6 +1,8 @@
 import React, { Component } from 'react';
 import './App.css';
 import Person from './Person/Person';
+import Validation from './Validation/Validation';
+import Radium, {StyleRoot} from 'radium';
 
 class App extends Component {
 
@@ -10,7 +12,10 @@ class App extends Component {
 			{ id: 'jfoeiweo', name:'Jennifer', age: 25},
 			{ id: 'jowiejfe', name:'Colt', age:22}
 		],
-		showPersons: false
+		showPersons: false, 
+		input: [
+			{ val: '', len: 0 }
+		]
 	}
 
 	// switchNameHandler = (newName) => {
@@ -71,44 +76,93 @@ class App extends Component {
 	}
 
 
+	inputLengthHandler = (event) => {
+		
+		let inputLength = event.target.value.length;
+
+		this.setState({
+			input: [
+				{ val: event.target.value, len: inputLength }
+			]
+		})
+	}
+
+
   render() {
 
   	const style = {
-  		backgroundColor: '#fff',
-  		padding: '30px',
+  		backgroundColor: '	#5cb85c',
+  		color: '#fff',
+  		width: 'auto',
+  		fontSize: '18px',
+  		padding: '5px 30px',
+  		borderRadius: '5px',
   		border: '2px solid green',
-  		cursor: 'pointer'
+  		cursor: 'pointer',
+  		':hover': {
+  			backgroundColor: 'green',
+  			transition: 'all .5s'
+  		}
 
   	};
 	let persons = null;
+	let inputLength = null;
+	let classes = [];
+	let overTwentyFive = this.state.input[0].len >= 25;
+
+	if( overTwentyFive ){
+		classes = ['red', 'bold'].join(' ');
+		inputLength = (
+			<p>Oops... the max characters allowed is 25.</p>
+		)
+	} else {
+		inputLength = (
+			<p>Input Length: {this.state.input[0].len}</p>
+		)
+	}
 
 	if( this.state.showPersons ){
 		persons = (
-		<div>
+		<StyleRoot>
+			<div>
 
-			{this.state.persons.map( (person, index) => {
-				return <Person 
-					click={ () => this.deletePersonHandler(index)} 
-					name={person.name} 
-					age={person.age} 
-					key={person.id}
-					changed={ (event) => this.nameChangeHandler( event, person.id )}
-					/>
-			})}
+				{this.state.persons.map( (person, index) => {
+					return <Person 
+						click={ () => this.deletePersonHandler(index)} 
+						name={person.name} 
+						age={person.age} 
+						key={person.id}
+						changed={ (event) => this.nameChangeHandler( event, person.id )}
+						/>
+				})}
 
-	    </div>
+		    </div>
+	    </StyleRoot>
 	    )
+	    style.backgroundColor = '#d9534f';
+	    style.border = '2px solid red';
+	    style[':hover'] = {
+	    	backgroundColor: 'red',
+  			transition: 'all .5s'
+	    }
 	} else {
 		persons = (
 			<p>No Persons</p>
 		)
 	}
+
+
+
     return (
       <div className="App">
         <h2>hello, I'm a react app.</h2>
+        <input type="text" maxLength="25" onChange={ (event) => this.inputLengthHandler(event)} value={this.state.inputValue} placeholder={this.state.input[0].val}/>
+        <p>{this.state.input[0].val}</p>
+        <p className={classes}>{inputLength}</p>
+        <Validation inputLength={this.state.input[0].len}/>
         <button 
         	style={style}
-        	onClick={this.togglePersonsHandler}>Switch Name
+        	onClick={this.togglePersonsHandler}>Toggle Persons
         </button>
         {persons}
       </div>
@@ -116,4 +170,4 @@ class App extends Component {
   }
 }
 
-export default App;
+export default Radium(App);
